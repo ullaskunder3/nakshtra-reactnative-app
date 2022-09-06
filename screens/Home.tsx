@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useState } from 'react';
 import { StyleSheet, View, TextInput, Text, TouchableHighlight } from 'react-native';
 import getAstroidInfo from '../api/fetchData';
