@@ -1,5 +1,4 @@
 import axios from "axios";
-import Asteroid from '../interface/Asteroid'
 import {API_KEY} from '@env';
 
 async function getAstroidInfo(ASTEROID_ID: any) {

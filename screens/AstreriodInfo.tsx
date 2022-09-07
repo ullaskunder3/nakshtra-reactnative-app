@@ -1,8 +1,13 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { View, Text, StyleSheet, Linking, ImageBackground } from 'react-native'
+import { AstroidInfoContext } from '../Context/AstroidInfoContext'
 const bg = require('../assets/space2.jpg')
-export default function AsteroidInfo({ route }: any) {
-    const { name, nasa_jpl_url, is_potentially_hazardous_asteroid } = route.params.asteroidInfo
+
+export default function AsteroidInfo() {
+    const { astroidInfo } = useContext(AstroidInfoContext)
+    
+    const { name, nasa_jpl_url, is_potentially_hazardous_asteroid } = astroidInfo
+    
     const astroidID = nasa_jpl_url.split('=')[1]
 
     const onPressLinkHandler = () => Linking.openURL(nasa_jpl_url)
