@@ -1,15 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View, TextInput, Text, TouchableHighlight } from 'react-native';
 import getAstroidInfo from '../api/fetchData';
 import getRandomAstroidInfo from '../api/RandomAstroidInfo';
 import { tostMessage } from '../api/toastMessage';
 import HomeProp from '../interface/Home';
+import Spinner from 'react-native-loading-spinner-overlay/lib';
 
 export default function Home(props: HomeProp) {
   const [astroidId, setAstroidId] = useState('');
+  const [isloading, setIsLoading] = useState(false);
 
   const changeHandler = (id:any) => {
-    if (!isNaN(id)) {      
+    if (!isNaN(id)) { 
       setAstroidId(id)
     }else {
       setAstroidId('')
@@ -17,26 +19,34 @@ export default function Home(props: HomeProp) {
     }
   }
 
-  const submitHandler = () => {
+  const submitHandler = ()=>{    
+    if (astroidId.length > 0) {
+      setIsLoading(true)
       getAstroidInfo(astroidId)
-        .then(response => {
-          if (response !== '404') {
-            props.navigation.navigate('AsteroidInfo', {
-              asteroidInfo: {
-                "name": response.name,
-                "nasa_jpl_url": response.nasa_jpl_url,
-                "is_potentially_hazardous_asteroid": response.is_potentially_hazardous_asteroid,
-              }
-            })
-          } else {
+      .then(response => {
+            if (response !== '404') {
+              setIsLoading(false)
+              props.navigation.navigate('AsteroidInfo', {
+                asteroidInfo: {
+                  "name": response.name,
+                  "nasa_jpl_url": response.nasa_jpl_url,
+                  "is_potentially_hazardous_asteroid": response.is_potentially_hazardous_asteroid,
+                }
+              })
+              setAstroidId('')
+            } else {
+              tostMessage('incorrect country name')
+              setAstroidId('');
+            }
+            setAstroidId('');
+          }).catch(() => {
             tostMessage('incorrect country name')
             setAstroidId('');
-          }
-          setAstroidId('');
-        }).catch(() => {
-          tostMessage('incorrect country name')
-          setAstroidId('');
-        })
+          })
+    }else {
+      setAstroidId('')
+      tostMessage('Invalid Input: Please valid ID')
+    }
   }
 
   /**
@@ -45,6 +55,7 @@ export default function Home(props: HomeProp) {
    * pass that to getAstroidInfo
    */
   const RandomHandler = () => {
+    setIsLoading(true)
       getRandomAstroidInfo()
         .then(response => {
           // @ts-ignore
@@ -61,6 +72,7 @@ export default function Home(props: HomeProp) {
           getAstroidInfo(randomID)
           .then(response => {
             if (response !== '404') {
+              setIsLoading(false)
               props.navigation.navigate('AsteroidInfo', {
                 asteroidInfo: {
                   "name": response.name,
@@ -86,11 +98,16 @@ export default function Home(props: HomeProp) {
 
   return (
     <View style={styles.main}>
+      <Spinner
+       visible={isloading}
+       />
       <TextInput
         placeholder='Enter Asteroid ID'
         placeholderTextColor='#9e9e9e'
         style={styles.searchInput}
         onChangeText={changeHandler}
+        value={astroidId}
+        keyboardType='numeric'
       />
       <TouchableHighlight
         style={styles.button}
